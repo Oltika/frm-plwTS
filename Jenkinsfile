@@ -28,8 +28,11 @@ pipeline {
                         }
                     }
                     steps {
-                        // Unit tests with Vitest
-                        sh 'npx vitest run --reporter=verbose'
+                        // Install deps in this container’s workspace (same as build stage pattern).
+                        // Avoid bare `npx vitest`: without node_modules it pulls a random Vitest
+                        // version and config loading fails (ERR_MODULE_NOT_FOUND for vitest/config).
+                        sh 'npm ci'
+                        sh 'npm run test:unit -- --reporter=verbose'
                     }
                 }
             }
