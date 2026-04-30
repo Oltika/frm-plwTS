@@ -1,6 +1,6 @@
-# Spanish Word Flip Flash
+# Test: Spanish Word Flip Flash
 
-A small React + Vite app that helps you learn essential Spanish words with flip cards. Includes unit tests (Vitest), end-to-end tests (Playwright), and a Jenkins pipeline using Docker.
+A small React + Vite app for testing
 
 ## Tech Stack
 - Vite + React + TypeScript
