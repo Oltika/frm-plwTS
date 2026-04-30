@@ -37,7 +37,7 @@ pipeline {
                 }
                 stage('integration tests') {
                     agent {
-                        doocker {
+                        docker {
                             image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
                             reuseNode true
                         }
