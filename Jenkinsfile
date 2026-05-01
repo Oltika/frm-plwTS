@@ -34,7 +34,7 @@ pipeline {
                         sh 'npm ci'
                     }
                 }
-                stage('Run tests') {
+                stage('Run unit tests') {
                     parallel {
                         stage('unit tests') {
                             agent {
@@ -88,6 +88,21 @@ pipeline {
             steps {
                 sh 'npm ci'
                 sh 'npm run test:e2e'
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        icon: '',
+                        keepAll: false,
+                        reportDir: 'reports-e2e/html',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright Test Report',
+                        useWrapperFileDirectly: true
+                    ])
+                    junit stdioRetention: 'ALL', testResults: 'reports-e2e/junit.xml'
+                }
             }
         }
     }
