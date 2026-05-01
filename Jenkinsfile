@@ -86,6 +86,7 @@ pipeline {
                 E2E_BASE_URL = 'https://spanish-cards.netlify.app/'
             }
             steps {
+                input message: 'Pause: proceed to run E2E tests?', ok: 'Run E2E'
                 sh 'npm ci'
                 sh 'npm run test:e2e'
             }
