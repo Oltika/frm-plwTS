@@ -18,18 +18,18 @@ pipeline {
             }
         }
 
-        // stage('test') {
-        //     agent {
-        //         docker {
-        //             image 'node:22-alpine'
-        //             reuseNode true
-        //         }
-        //     }
-        //     steps {
-        //         sh 'npm ci'
-        //         sh 'npm run test:unit -- --reporter=verbose'
-        //     }
-        // }
+        stage('test') {
+            agent {
+                docker {
+                    image 'node:22-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'npm ci'
+                sh 'npm run test:unit -- --reporter=verbose'
+            }
+        }
 
         stage('integration tests') {
             agent {
@@ -45,9 +45,6 @@ pipeline {
             post {
                 always {
                     script {
-                        // Playwright’s report is a client-side app (JS). Jenkins HTML Publisher wraps it in a
-                        // sandboxed iframe and applies CSP, so pointing reportDir at reports-e2e/html usually
-                        // shows a blank page — not missing tests. Full UI: download playwright-html-report.tgz.
                         sh '''
                             set -e
                             if [ -d reports-e2e/html ]; then
@@ -90,6 +87,36 @@ EOF
                         ])
                         junit allowEmptyResults: true, stdioRetention: 'ALL', testResults: 'reports-e2e/junit.xml'
                     }
+                }
+                failure {
+                    echo 'Integration tests failed — check playwright-html-report.tgz in Artifacts.'
+                }
+            }
+        }
+
+        stage('deploy') {
+            steps {
+                echo 'Mock deployment was successful!'
+            }
+        }
+
+        stage('e2e') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.59.1-jammy'
+                    reuseNode true
+                }
+            }
+            environment {
+                E2E_BASE_URL = 'https://spanish-cards.netlify.app/'
+            }
+            steps {
+                sh 'npm ci'
+                sh 'npx playwright test'
+            }
+            post {
+                failure {
+                    echo 'E2E tests failed — check test results.'
                 }
             }
         }
