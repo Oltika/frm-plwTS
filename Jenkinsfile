@@ -91,17 +91,19 @@ pipeline {
             }
             post {
                 always {
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        icon: '',
-                        keepAll: false,
-                        reportDir: 'reports-e2e/html',
-                        reportFiles: 'index.html',
-                        reportName: 'Playwright Test Report',
-                        useWrapperFileDirectly: true
-                    ]),
-                    junit stdioRetention: 'ALL', testResults: 'reports-e2e/junit.xml'
+                    script {
+                        publishHTML([
+                            allowMissing: true,
+                            alwaysLinkToLastBuild: true,
+                            icon: '',
+                            keepAll: false,
+                            reportDir: 'reports-e2e/html',
+                            reportFiles: 'index.html',
+                            reportName: 'Playwright Test Report',
+                            useWrapperFileDirectly: true
+                        ])
+                        junit allowEmptyResults: true, stdioRetention: 'ALL', testResults: 'reports-e2e/junit.xml'
+                    }
                 }
             }
         }
