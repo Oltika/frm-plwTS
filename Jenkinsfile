@@ -100,7 +100,7 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName: 'Playwright Test Report',
                         useWrapperFileDirectly: true
-                    ])
+                    ]),
                     junit stdioRetention: 'ALL', testResults: 'reports-e2e/junit.xml'
                 }
             }
