@@ -19,8 +19,11 @@ pipeline {
         }
 
         stage('test') {
-            parallel {
-                stage('unit tests') {
+            agent none
+            stages {
+                // One install before parallel work — avoids races where `npm ci` in one
+                // branch deletes node_modules while Playwright runs in another (MODULE_NOT_FOUND for playwright-core).
+                stage('Install dependencies') {
                     agent {
                         docker {
                             image 'node:22-alpine'
@@ -28,22 +31,34 @@ pipeline {
                         }
                     }
                     steps {
-                        // Install deps in this container’s workspace (same as build stage pattern).
-                        // Avoid bare `npx vitest`: without node_modules it pulls a random Vitest
-                        // version and config loading fails (ERR_MODULE_NOT_FOUND for vitest/config).
                         sh 'npm ci'
-                        sh 'npm run test:unit -- --reporter=verbose'
                     }
                 }
-                stage('integration tests') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.59.1-jammy'
-                            reuseNode true
+                stage('Run tests') {
+                    parallel {
+                        stage('unit tests') {
+                            agent {
+                                docker {
+                                    image 'node:22-alpine'
+                                    reuseNode true
+                                }
+                            }
+                            steps {
+                                // Avoid bare `npx vitest`: use lockfile-pinned Vitest from node_modules.
+                                sh 'npm run test:unit -- --reporter=verbose'
+                            }
                         }
-                    }
-                    steps {
-                        sh 'npx playwright test'
+                        stage('integration tests') {
+                            agent {
+                                docker {
+                                    image 'mcr.microsoft.com/playwright:v1.59.1-jammy'
+                                    reuseNode true
+                                }
+                            }
+                            steps {
+                                sh 'npm run test:e2e'
+                            }
+                        }
                     }
                 }
             }
@@ -71,7 +86,8 @@ pipeline {
                 E2E_BASE_URL = 'https://spanish-cards.netlify.app/'
             }
             steps {
-                sh 'npx playwright test'
+                sh 'npm ci'
+                sh 'npm run test:e2e'
             }
         }
     }
