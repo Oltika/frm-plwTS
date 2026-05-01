@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     options {
         ansiColor('xterm')
     }
@@ -19,74 +19,26 @@ pipeline {
         }
 
         stage('test') {
-            agent none
-            stages {
-                // One install before parallel work — avoids races where `npm ci` in one
-                // branch deletes node_modules while Playwright runs in another (MODULE_NOT_FOUND for playwright-core).
-                stage('Install dependencies') {
-                    agent {
-                        docker {
-                            image 'node:22-alpine'
-                            reuseNode true
-                        }
-                    }
-                    steps {
-                        sh 'npm ci'
-                    }
-                }
-                stage('Run unit tests') {
-                    parallel {
-                        stage('unit tests') {
-                            agent {
-                                docker {
-                                    image 'node:22-alpine'
-                                    reuseNode true
-                                }
-                            }
-                            steps {
-                                // Avoid bare `npx vitest`: use lockfile-pinned Vitest from node_modules.
-                                sh 'npm run test:unit -- --reporter=verbose'
-                            }
-                        }
-                        stage('integration tests') {
-                            agent {
-                                docker {
-                                    image 'mcr.microsoft.com/playwright:v1.59.1-jammy'
-                                    reuseNode true
-                                }
-                            }
-                            steps {
-                                sh 'npm run test:e2e'
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('deploy') {
             agent {
                 docker {
-                    image 'alpine'
+                    image 'node:22-alpine'
+                    reuseNode true
                 }
             }
             steps {
-                // Mock deployment which does nothing
-                echo 'Mock deployment was successful!'
+                sh 'npm ci'
+                sh 'npm run test:unit -- --reporter=verbose'
             }
         }
-        stage('e2e') {
+
+        stage('integration tests') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.59.1-jammy'
                     reuseNode true
                 }
             }
-            environment {
-                E2E_BASE_URL = 'https://spanish-cards.netlify.app/'
-            }
             steps {
-                input message: 'Pause: proceed to run E2E tests?', ok: 'Run E2E'
                 sh 'npm ci'
                 sh 'npm run test:e2e'
             }
