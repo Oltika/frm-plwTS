@@ -99,6 +99,3 @@ Outputs to `dist/`.
 ## Troubleshooting
 - Port 8080 in use: kill existing dev server, e.g. `npx kill-port 8080`.
 - Playwright slow-mo: set `SLOW_MO=400` (ms) env var.
-
-## License
-MIT
