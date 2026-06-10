@@ -11,7 +11,6 @@ A small React + Vite app for testing
 
 ## Requirements
 - Node.js 20+ (Node 22 recommended)
-- npm 9+
 
 ## Getting Started
 1. Install dependencies:
@@ -37,7 +36,7 @@ A small React + Vite app for testing
   - Update snapshots: `npm run test:e2e:update`
   - Open last HTML report: `npm run test:e2e:report`
 
-## End-to-End Testing (Playwright)
+## End-to-End Testing
 Playwright is configured in `playwright.config.ts`.
 - Base URL: overridable via `E2E_BASE_URL` (defaults to `http://localhost:8080`).
 - Dev server auto-starts/stops if `E2E_BASE_URL` is the default.
@@ -68,7 +67,7 @@ Data-test IDs are used throughout for stable selectors in E2E tests:
 - `data-testid="prev-btn"`, `data-testid="next-btn"`, `data-testid="random-btn"`
 - `data-testid="counter"`
 
-## Unit Testing (Vitest)
+## Unit Testing
 - Config: `vitest.config.ts`
 - Example test: `src/lib/utils.test.ts` for the `cn` helper.
 
@@ -95,10 +94,3 @@ Note: If you wish to run E2E in Jenkins, add steps to install Playwright browser
 npm run build
 ```
 Outputs to `dist/`.
-
-## Troubleshooting
-- Port 8080 in use: kill existing dev server, e.g. `npx kill-port 8080`.
-- Playwright slow-mo: set `SLOW_MO=400` (ms) env var.
-
-## License
-MIT
